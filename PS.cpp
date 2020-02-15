@@ -496,7 +496,8 @@ int main()
     std::cin >>Win; 
 
     double Vmod;
-    Vmod=Amod*Win;
+    printf("Vmod: ");
+    std::cin >>Vmod; 
 
 ////////////////////////////////////////////////////////////////////////////
 	char buf[0x100];
