@@ -76,13 +76,13 @@ struct push_back_state_and_time
 
 void inicialcond(state_type &x,int N,boost::mt19937 &rng,double Ampin, double Velin)
 {
-    	FILE *w= fopen("Xi.txt", "w");
+    	/*FILE *w= fopen("Xi.txt", "w");
     	for (int i = 0; i < N; ++i)
 		{
 			fprintf(w, "%f  ",Ampin );
 			fprintf(w, "%f\n",Velin );
 		}
-		fclose(w);
+		fclose(w);*/
 		FILE *r= fopen("Xi.txt", "r");
 		for (int i = 0; i < N; ++i)
 		{
@@ -101,7 +101,7 @@ void fillK(arma::Mat<double> &K,int N,boost::mt19937 &rng,int caso,double k)
 
     if (caso==0)
     {
-    	FILE *w= fopen("Ki.txt", "w");
+    	/*FILE *w= fopen("Ki.txt", "w");
     	for (int i = 0; i < N; ++i)
 		{
 			for (int j = 0; j <= i; ++j)
@@ -117,7 +117,7 @@ void fillK(arma::Mat<double> &K,int N,boost::mt19937 &rng,int caso,double k)
 
 			}
 		}
-		fclose(w);
+		fclose(w);*/
 		FILE *r= fopen("Ki.txt", "r");
     	for (int i = 0; i < N; ++i)
 		{
@@ -156,7 +156,7 @@ void fillM(std::vector<double> &M,int N,boost::mt19937 &rng,int caso)
     }
     if(caso==1)
     {
-    	printf("loading Mi\n");
+    	//printf("loading Mi\n");
 		FILE *r= fopen("Mi.txt", "r");
 		for (int i = 0; i < N; ++i)
 		{
@@ -190,7 +190,7 @@ void fillG(std::vector<double> &G,int N,boost::mt19937 &rng,int caso)
 	}
 	if(caso==1)
 	{
-    	printf("loading Gi\n");
+    	//printf("loading Gi\n");
 		FILE *r= fopen("Gi.txt", "r");
 		for (int i = 0; i < N; ++i)
 		{
@@ -222,7 +222,7 @@ void fillB(std::vector<double> &B,int N,boost::mt19937 &rng,int caso)
     }
     if(caso==1)
     {
-    	printf("loading Bi\n");
+    	//printf("loading Bi\n");
 		FILE *r= fopen("Bi.txt", "r");
     	for (int i = 0; i < N; ++i)
 		{
@@ -255,7 +255,7 @@ void fillL(std::vector<double> &L,int N,boost::mt19937 &rng,int caso)
     }
     if(caso==1)
     {
-    	printf("loading Li\n");
+    	//printf("loading Li\n");
 		FILE *r= fopen("Li.txt", "r");
     	for (int i = 0; i < N; ++i)
 		{
@@ -287,7 +287,7 @@ void fillF(std::vector<double> &F,int N,boost::mt19937 &rng,int caso)
     }
     if(caso==1)
     {
-    	printf("loading Fi\n");
+    	//printf("loading Fi\n");
 		FILE *r= fopen("Fi.txt", "r");
     	for (int i = 0; i < N; ++i)
 		{
@@ -319,7 +319,7 @@ void fillFw(std::vector<double> &Fw,int N,boost::mt19937 &rng,int caso,double Wi
     }
     if(caso==1)
     {
-    	printf("loading Fwi\n");
+    	//printf("loading Fwi\n");
 		FILE *r= fopen("Fwi.txt", "r");
     	for (int i = 0; i < N; ++i)
 		{
@@ -453,15 +453,15 @@ double iterateK(int N,boost::mt19937 &rng,double Ampin, double Velin,double Win)
     double Amax;
     ////////////////////////////////////////////////////////////////////
 	fillK(K,N,rng,0,1.0);
-	fillM(M,N,rng,0);
-	fillG(G,N,rng,0);
-	fillB(B,N,rng,0);
-	fillL(L,N,rng,0);
-	fillF(F,N,rng,0);
-	fillFw(W,N,rng,0,Win);
+	fillM(M,N,rng,1);
+	fillG(G,N,rng,1);
+	fillB(B,N,rng,1);
+	fillL(L,N,rng,1);
+	fillF(F,N,rng,1);
+	fillFw(W,N,rng,1,Win);
 
-	inicialcond(x,N,rng,Ampin,Velin);
-	
+	x[2*0]=Ampin;
+	x[2*0+1]=Velin;
 	////////////////////////////////////////////////////////////////////
     harm_osc ho(G,B,N,M,K,L,F,W);
     runge_kutta4 < state_type > stepper;
@@ -505,12 +505,16 @@ int main()
     FILE *w;
     w= fopen(buf, "w");
 
+    double asd;
+
+	#pragma omp parallel for schedule(static) private(asd)
     for (int i = 0; i < NA; ++i)
     {
     	printf("porcentaje: %lf \n", (double)100.0*(i+1)/NA);
     	for (int j = 0; j < NV; ++j)
     	{
-    		fprintf(w, "%lf   %lf   %lf\n",(double)(-Amod+i*2.0*Amod/(NA-1.0)),(double)(-Vmod+j*2.0*Vmod/(NV-1)),iterateK(1,rng,-Amod+i*2.0*Amod/(NA-1),-Vmod+j*2.0*Vmod/(NV-1),Win));
+    		asd=iterateK(1,rng,-Amod+i*2.0*Amod/(NA-1),-Vmod+j*2.0*Vmod/(NV-1),Win);
+    		fprintf(w, "%lf   %lf   %lf\n",(double)(-Amod+i*2.0*Amod/(NA-1.0)),(double)(-Vmod+j*2.0*Vmod/(NV-1)),asd);
 		}
     }
     fclose(w);
